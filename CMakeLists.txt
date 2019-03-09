@@ -1,0 +1,196 @@
+# Copyright (C) 2019-2020 Cardinal
+# Vincent STEHLY--CALISTO, vincentstehly@hotmail.fr
+
+# CMake project settings
+CMAKE_MINIMUM_REQUIRED(VERSION 3.2)
+PROJECT(Cardinal)
+
+# Checking project structure
+INCLUDE(CMake/CMakeConfigDirectory.cmake)
+
+# Defines the game engine version and name
+SET(CMAKE_ENGINE_VERSION_MAJOR 0)
+SET(CMAKE_ENGINE_VERSION_MINOR 1)
+SET(CMAKE_ENGINE_VERSION_PATCH 0)
+
+# Empty for now
+SET(GNU_DEPENDENCIES   "")
+SET(MSVC_DEPENDENCIES  "")
+
+SET(WIN32_DEPENDENCIES "")
+SET(APPLE_DEPENDENCIES "")
+SET(UNIX_DEPENDENCIES  "")
+
+SET(CARDINAL_BIN_OUTPUT "")
+SET(CARDINAL_LIB_OUTPUT "")
+
+# Displays engine version
+MESSAGE(STATUS "[Cardinal] Engine : ${ENGINE_NAME} "
+         "${CMAKE_ENGINE_VERSION_MAJOR}."
+         "${CMAKE_ENGINE_VERSION_MINOR}."
+         "${CMAKE_ENGINE_VERSION_PATCH} ")
+
+# Compiler settings
+# Using GNU GCC
+IF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+
+    SET(CARDINAL_USE_GCC 1)
+    SET(COMPILER_DEPENDENCIES ${GNU_DEPENDENCIES})
+
+    ADD_DEFINITIONS(-D CARDINAL_USE_GCC)
+    MESSAGE(STATUS "[Cardinal] Detected Compiler : ${CMAKE_CXX_COMPILER_ID}")
+
+    # For GCC, setting flags
+    SET(CXX_RELEASE_FLAGS   "-Wall -Wextra -O3")
+    SET(CXX_DEBUG_FLAGS     "-Wall -Wextra -g -Wdouble-promotion")
+
+# Using Visual Studio C++
+ELSEIF ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+
+    SET(CARDINAL_USE_MSVC 1)
+    SET(COMPILER_DEPENDENCIES ${WINDOWS_MVSC_DEPENDENCIES})
+
+    ADD_DEFINITIONS(-D CARDINAL_USE_MSVC)
+    MESSAGE(STATUS "[Cardinal] Detected Compiler : ${CMAKE_CXX_COMPILER_ID}")
+
+    # No flags yet for MVSC
+    # For GCC, setting flags
+    # SET(CXX_RELEASE_FLAGS "")
+    # SET(CXX_DEBUG_FLAGS   "")
+
+ELSE()
+
+    # Unsuported compiler
+    SET(COMPILER_DEPENDENCIES "")
+    MESSAGE(FATAL_ERROR "[Cardinal] Detected Compiler : Unknown, please use GCC or MSVC.")
+
+ENDIF()
+
+SET    (CMAKE_CXX_STANDARD 17)
+MESSAGE(STATUS "[Cardinal] Compilation CXX standard  : " ${CMAKE_CXX_STANDARD})
+MESSAGE(STATUS "[Cardinal] Compilation debug   flags : " ${CXX_DEBUG_FLAGS})
+MESSAGE(STATUS "[Cardinal] Compilation release flags : " ${CXX_RELEASE_FLAGS})
+
+# Platform detection and settings
+IF(WIN32)
+
+    # Windows operating system
+    SET(CARDINAL_WINDOWS 1)
+    SET(PLATFORM_DEPENDENCIES ${WIN32_DEPENDENCIES})
+    ADD_DEFINITIONS(-D CARDINAL_WINDOWS)
+    MESSAGE(STATUS "[Cardinal] Detected platform : Windows")
+
+ELSEIF(UNIX)
+
+    # Unix operating system
+    SET(CARDINAL_UNIX 1)
+    SET(PLATFORM_DEPENDENCIES ${UNIX_DEPENDENCIES})
+    ADD_DEFINITIONS(-D CARDINAL_UNIX)
+    MESSAGE(STATUS "[Cardinal] Detected platform : Unix")
+
+ELSEIF(APPLE)
+
+    # Mac os operating system
+    SET(CARDINAL_APPLE 1)
+    SET(PLATFORM_DEPENDENCIES ${APPLE_DEPENDENCIES})
+    ADD_DEFINITIONS(-D CARDINAL_APPLE)
+    MESSAGE(STATUS "[Cardinal] Detected platform : Apple")
+
+ELSE()
+
+    # Not supported
+    SET(PLATFORM_NOT_SUPORTED 0)
+    SET(PLATFORM_DEPENDENCIES)
+    ADD_DEFINITIONS(-D PLATFORM_NOT_SUPORTED)
+    MESSAGE(FATAL_ERROR "[Cardinal] This plateform is currently not supported")
+
+ENDIF()
+
+SET(ARCHITECTURE "")
+CHECK_ARCHITECTURE(ARCHITECTURE)
+
+# Checking architecture
+IF(${ARCHITECTURE} MATCHES 32)
+    MESSAGE(STATUS "[Cardinal] Target architecture : 32 bits")
+ELSE()
+    MESSAGE(STATUS "[Cardinal] Target architecture : 64 bits")
+ENDIF()
+
+# Compilation mode
+IF(${CMAKE_BUILD_TYPE} MATCHES Debug)
+
+    # Debug mode
+    ADD_DEFINITIONS(-D CARDINAL_DEBUG)
+
+    IF(${ARCHITECTURE} MATCHES 32)
+        SET(CARDINAL_BIN_OUTPUT        ${CARDINAL_BIN_DIR32_D})
+        SET(CARDINAL_LIB_OUTPUT        ${CARDINAL_LIB_DIR32_D})
+        SET(CARDINAL_RUNTIME           ${CARDINAL_RUNTIME32_D})
+        SET(CARDINAL_RUNTIME_LIBRARY   ${CARDINAL_RUNTIME_LIBRARY32_D})
+        SET(CARDINAL_RUNTIME_UNIT_TEST ${CARDINAL_RUNTIME_UNIT_TEST32_D})
+    ELSE()
+        SET(CARDINAL_BIN_OUTPUT        ${CARDINAL_BIN_DIR64_D})
+        SET(CARDINAL_LIB_OUTPUT        ${CARDINAL_LIB_DIR64_D})
+        SET(CARDINAL_RUNTIME           ${CARDINAL_RUNTIME64_D})
+        SET(CARDINAL_RUNTIME_LIBRARY   ${CARDINAL_RUNTIME_LIBRARY64_D})
+        SET(CARDINAL_RUNTIME_UNIT_TEST ${CARDINAL_RUNTIME_UNIT_TEST64_D})
+    ENDIF()
+
+    MESSAGE(STATUS "[Cardinal] Compilation mode  : Debug x" ${ARCHITECTURE})
+    MESSAGE(STATUS "[Cardinal] Project binary  output : ${CARDINAL_BIN_OUTPUT}")
+    MESSAGE(STATUS "[Cardinal] Project library output : ${CARDINAL_LIB_OUTPUT}")
+
+    # Setting flags
+    IF(COMPILER_GCC)
+        # Only for GCC
+        set(CMAKE_CXX_FLAGS_DEBUG ${CXX_DEBUG_FLAGS} CACHE STRING "DBG" FORCE)
+    ENDIF()
+
+ELSEIF(${CMAKE_BUILD_TYPE} MATCHES Release)
+
+    # Release mode
+    ADD_DEFINITIONS(-D CARDINAL_RELEASE)
+    IF(${ARCHITECTURE} MATCHES 32)
+        SET(CARDINAL_BIN_OUTPUT        ${CARDINAL_BIN_DIR32_R})
+        SET(CARDINAL_LIB_OUTPUT        ${CARDINAL_LIB_DIR32_R})
+        SET(CARDINAL_RUNTIME           ${CARDINAL_RUNTIME32_R})
+        SET(CARDINAL_RUNTIME_LIBRARY   ${CARDINAL_RUNTIME_LIBRARY32_R})
+        SET(CARDINAL_RUNTIME_UNIT_TEST ${CARDINAL_RUNTIME_UNIT_TEST32_R})
+    ELSE()
+        SET(CARDINAL_BIN_OUTPUT        ${CARDINAL_BIN_DIR64_R})
+        SET(CARDINAL_LIB_OUTPUT        ${CARDINAL_LIB_DIR64_R})
+        SET(CARDINAL_RUNTIME           ${CARDINAL_RUNTIME64_R})
+        SET(CARDINAL_RUNTIME_LIBRARY   ${CARDINAL_RUNTIME_LIBRARY64_R})
+        SET(CARDINAL_RUNTIME_UNIT_TEST ${CARDINAL_RUNTIME_UNIT_TEST64_R})
+    ENDIF()
+
+    MESSAGE(STATUS "[Cardinal] Compilation mode  : Release x" ${ARCHITECTURE})
+    MESSAGE(STATUS "[Cardinal] Project binary  output : ${CARDINAL_BIN_OUTPUT}")
+    MESSAGE(STATUS "[Cardinal] Project library output : ${CARDINAL_LIB_OUTPUT}")
+
+    # Setting flags
+    IF(COMPILER_GCC)
+        # Only for GCC
+        set(CMAKE_CXX_FLAGS_DEBUG ${CXX_RELEASE_FLAGS} CACHE STRING "REL" FORCE)
+    ENDIF()
+
+ELSE()
+
+    # No mode
+    MESSAGE(FATAL_ERROR "[Cardinal] No build type, please configure it")
+
+ENDIF()
+
+# Avoiding the Release/Debug subdirectories
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY         ${CARDINAL_BIN_OUTPUT})
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG   ${CARDINAL_BIN_OUTPUT})
+SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CARDINAL_BIN_OUTPUT})
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG   ${CARDINAL_LIB_OUTPUT})
+SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CARDINAL_LIB_OUTPUT})
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG   ${CARDINAL_LIB_OUTPUT})
+SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CARDINAL_LIB_OUTPUT})
+
+# Obsolete, configured in CMakeSettings.json
+# SET(gtest_force_shared_crt ON CACHE BOOL FORCE "Always use msvcrt.dll" )
+
+ADD_SUBDIRECTORY(Engine)

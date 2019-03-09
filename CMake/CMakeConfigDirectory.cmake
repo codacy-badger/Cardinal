@@ -1,0 +1,32 @@
+# Copyright (C) 2019-2020 Cardinal
+# Vincent STEHLY--CALISTO, vincentstehly@hotmail.fr
+
+# Getting utils
+INCLUDE(${CMAKE_SOURCE_DIR}/CMake/CMakeConfigGlobal.cmake)
+INCLUDE(${CMAKE_SOURCE_DIR}/CMake/CMakeConfigFunction.cmake)
+
+MESSAGE(STATUS "[Cardinal] Checking project structure.")
+
+IF(NOT EXISTS ${CARDINAL_BIN_DIR})
+
+    MESSAGE(STATUS "[Cardinal] Creating binary directory.")
+
+    CREATE_DIRECTORY(${CARDINAL_BIN_DIR})
+    CREATE_DIRECTORY(${CARDINAL_BIN_DIR32_D})
+    CREATE_DIRECTORY(${CARDINAL_BIN_DIR32_R})
+    CREATE_DIRECTORY(${CARDINAL_BIN_DIR64_D})
+    CREATE_DIRECTORY(${CARDINAL_BIN_DIR64_R})
+ENDIF()
+
+IF(NOT EXISTS ${ORDINAL_LIB_DIR})
+
+    MESSAGE(STATUS "[Cardinal] Creating library directory.")
+
+    CREATE_DIRECTORY(${CARDINAL_LIB_DIR})
+    CREATE_DIRECTORY(${CARDINAL_LIB_DIR32_D})
+    CREATE_DIRECTORY(${CARDINAL_LIB_DIR32_R})
+    CREATE_DIRECTORY(${CARDINAL_LIB_DIR64_D})
+    CREATE_DIRECTORY(${CARDINAL_LIB_DIR64_R})
+ENDIF()
+
+MESSAGE(STATUS "[Cardinal] Project checked.")
