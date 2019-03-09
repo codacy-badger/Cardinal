@@ -1,4 +1,4 @@
-# ![Cardinal](https://github.com/Aredhele/Cardinal/blob/master/Docs/Logo.png)
+# ![Cardinal](https://github.com/Aredhele/Cardinal/blob/master/Docs/Banner.png)
 
 # Cardinal Engine
 
